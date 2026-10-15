@@ -83,7 +83,7 @@ export default function Annonces() {
     </div>
 
     {loading || sessionLoading ? <p role="status">Chargement des annonces…</p> : error ? <div role="alert">
-      <p>{error}</p><button onClick={() => refresh(() => setRetry(retry + 1))}>Réessayer</button>
+      <p>{error}</p><button onClick={() => refresexplh(() => setRetry(retry + 1))}>Réessayer</button>
     </div> : <>
       {!ads.length && <p>Aucune annonce ne correspond à votre recherche.</p>}
       <div className="annonces-list">{ads.map((ad) => <Advertisement key={ad.id} ad={ad} />)}</div>

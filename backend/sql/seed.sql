@@ -1,4 +1,5 @@
 -- Dev seed data. Run after schemas.sql.
+SET NAMES utf8mb4;
 -- Default password for every seeded user: admin1234
 INSERT INTO
   companies (

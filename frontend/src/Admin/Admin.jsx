@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../api'
 import { resources } from './resources'
+import './Admin.css'
 
 const pageSize = 8
 const formatValue = (value) => {
@@ -12,6 +13,17 @@ const formatValue = (value) => {
 function ResourceForm({ resource, record, onSaved, onCancel }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const dialogRef = useRef(null)
+  useEffect(() => {
+    const dialog = dialogRef.current
+    const previousOverflow = document.body.style.overflow
+    dialog.showModal()
+    document.body.style.overflow = 'hidden'
+    return () => {
+      dialog.close()
+      document.body.style.overflow = previousOverflow
+    }
+  }, [])
   const editing = !!record.id
   const fields = resources[resource].fields.map((field) => resource === 'users' && field[0] === 'password' ? [...field.slice(0, 3), !editing, ...field.slice(4)] : field)
 
@@ -36,8 +48,12 @@ function ResourceForm({ resource, record, onSaved, onCancel }) {
     }
   }
 
-  return <form className="admin-form" onSubmit={submit}>
-    <h2>{editing ? `Modifier #${record.id}` : resources[resource].action}</h2>
+  return <dialog ref={dialogRef} className="admin-dialog" aria-labelledby="resource-form-title" onCancel={(event) => { event.preventDefault(); if (!busy) onCancel() }}>
+    <form className="admin-form" onSubmit={submit}>
+    <header className="admin-dialog-header">
+      <div><p className="eyebrow">{resources[resource].label}</p><h2 id="resource-form-title">{editing ? `Modifier #${record.id}` : resources[resource].action}</h2></div>
+      <button type="button" className="secondary dialog-close" aria-label="Fermer la fenêtre" disabled={busy} onClick={onCancel}>×</button>
+    </header>
     <div className="form-grid">
       {fields.map(([name, label, type, required, maxLength]) => <label key={name} className={type === 'textarea' ? 'full-width' : undefined}>{label}
         {Array.isArray(type) ? <select name={name} aria-label={label} defaultValue={record[name] != null ? String(record[name]) : required ? type[0] : ''} required={required}>
@@ -49,8 +65,9 @@ function ResourceForm({ resource, record, onSaved, onCancel }) {
       </label>)}
     </div>
     {error && <p role="alert">{error}</p>}
-    <div className="actions"><button disabled={busy}>Enregistrer</button><button className="secondary" type="button" disabled={busy} onClick={onCancel}>Annuler</button></div>
-  </form>
+    <div className="actions"><button disabled={busy}>{busy ? 'Enregistrement…' : 'Enregistrer'}</button><button className="secondary" type="button" disabled={busy} onClick={onCancel}>Annuler</button></div>
+    </form>
+  </dialog>
 }
 
 function ResourcePanel({ resource }) {
@@ -106,7 +123,7 @@ function ResourcePanel({ resource }) {
     }
   }
 
-  const columns = rows.reduce((names, row) => {
+  const columns = resource === 'advertisements' ? ['id', 'title', 'short_description'] : rows.reduce((names, row) => {
     Object.keys(row).forEach((column) => {
       if (column !== 'full_description' && !names.includes(column)) names.push(column)
     })
@@ -115,13 +132,17 @@ function ResourcePanel({ resource }) {
   return <section className="resource-panel">
     <header className="resource-header">
       <div>
-        <p className="eyebrow">Administration · {resource}</p>
-        <h1>{resources[resource].label}</h1>
+        <p className="eyebrow">Gestion des ressources</p>
+        <h2>{resources[resource].label}</h2>
         <p className="resource-description">Gérer, créer et modifier : {resources[resource].label.toLowerCase()}.</p>
       </div>
       <button onClick={() => { setRecord({}); setNotice('') }}>{resources[resource].action}</button>
     </header>
-    {notice && <p role="status">{notice}</p>}
+    <div className="admin-toolbar">
+      <p><strong>{loading ? '…' : total}</strong> enregistrements <span>· {pageSize} par page</span></p>
+      <button type="button" className="secondary" disabled={loading} onClick={() => reload()}>Actualiser</button>
+    </div>
+    {notice && <p className="admin-notice" role="status">{notice}</p>}
     {record && <ResourceForm key={record.id || 'new'} resource={resource} record={record} onCancel={() => setRecord(null)} onSaved={() => { setRecord(null); reload('Enregistrement sauvegardé.') }} />}
     {error && <div role="alert"><p>{error}</p><button type="button" onClick={() => reload()}>Réessayer</button></div>}
     {deleting !== null && <div className="confirmation">
@@ -131,8 +152,8 @@ function ResourcePanel({ resource }) {
         <button className="secondary" type="button" disabled={busy} onClick={() => setDeleting(null)}>Annuler</button>
       </div>
     </div>}
-    {loading ? <p role="status">Chargement…</p> : <div className="table-scroll" tabIndex="0" aria-label={`Tableau défilant : ${resources[resource].label.toLowerCase()}`}>
-      {!rows.length ? <p className="empty-state">Aucun enregistrement sur cette page.</p> : <table className="admin-table">
+    {loading && !rows.length ? <p role="status">Chargement…</p> : <div className="table-scroll" aria-busy={loading} tabIndex="0" aria-label={`Tableau défilant : ${resources[resource].label.toLowerCase()}`}>
+      {!rows.length ? <p className="empty-state">Aucun enregistrement sur cette page.</p> : <table className={`admin-table ${resource === 'advertisements' ? 'advertisements-table' : ''}`}> 
         <caption>
           {resources[resource].label} {page * pageSize + 1}–{page * pageSize + rows.length} sur {total}
         </caption>
@@ -149,7 +170,7 @@ function ResourcePanel({ resource }) {
           })}
           <td className="table-actions" data-label="Actions">
             <button type="button" className="secondary" aria-label={`Modifier ${resources[resource].label.toLowerCase()} #${row.id}`} onClick={() => edit(row)}>Modifier</button>
-            <button type="button" className="secondary" aria-label={`Supprimer ${resources[resource].label.toLowerCase()} #${row.id}`} onClick={() => setDeleting(row.id)}>Supprimer</button>
+            <button type="button" className="secondary danger-action" aria-label={`Supprimer ${resources[resource].label.toLowerCase()} #${row.id}`} onClick={() => setDeleting(row.id)}>Supprimer</button>
           </td>
         </tr>)}</tbody>
       </table>}
@@ -167,7 +188,7 @@ export default function Admin() {
   return <section className="admin-page">
     <header className="admin-page-header">
       <div>
-        <p className="eyebrow">tanière admin</p>
+        <p className="eyebrow">Job board · Administration</p>
         <h1>Espace de travail</h1>
         <p>Gérez le job board depuis un seul espace clair.</p>
       </div>
@@ -183,9 +204,9 @@ export default function Admin() {
           {Object.entries(resources).map(([key, value]) => <button type="button" className="secondary" key={key} aria-pressed={resource === key} onClick={() => setResource(key)}>{value.label}</button>)}
         </nav>
       </aside>
-      <main className="admin-content">
+      <div className="admin-content">
         <ResourcePanel key={resource} resource={resource} />
-      </main>
+      </div>
     </div>
   </section>
 }

@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Run ./scripts/start-local.sh first}
+      MYSQL_DATABASE: job_board
+      MYSQL_USER: jobboard
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Run ./scripts/start-local.sh first}
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/sql/schemas.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/sql/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql -h 127.0.0.1 -u jobboard job_board -e 'SELECT COUNT(*) FROM job_applications' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+
+volumes:
+  mysql_data:
