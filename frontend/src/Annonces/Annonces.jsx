@@ -63,7 +63,10 @@ export default function Annonces() {
 
     <div className="board-toolbar">
       <label className="search-field">Recherche
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Intitulé du poste, mot-clé…" />
+        <span className="search-input-wrapper">
+          <img src="/images/taniere-icon.svg" alt="" width="24" height="24" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Intitulé du poste, mot-clé…" />
+        </span>
       </label>
       <label className="search-field">Lieu
         <input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Ville…" />

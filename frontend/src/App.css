@@ -77,6 +77,9 @@ form button { margin-bottom: 8px; }
   margin: 16px 0 24px;
 }
 .search-field { margin: 0; }
+.search-input-wrapper { position: relative; display: block; }
+.search-input-wrapper img { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.search-input-wrapper input { padding-left: 48px; }
 .filter-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 .offer-count { color: var(--cocoa); font-weight: 700; }
 
