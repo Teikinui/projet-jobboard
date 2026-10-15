@@ -97,5 +97,9 @@ export default function Annonces() {
       <span>Page {page + 1} / {pageCount}</span>
       <button className="secondary" disabled={loading || !!error || page + 1 >= pageCount} onClick={() => refresh(() => setPage(page + 1))}>Suivant</button>
     </nav>
+
+    <div className="board-mascot">
+      <img src="/images/fox-donut.svg" alt="Un renard croque un donut sur lequel est écrit indeed." width="480" height="360" />
+    </div>
   </section>
 }

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" fill="none">
+  <title>Un renard mange un donut marqué indeed</title>
+  <defs>
+    <mask id="bite">
+      <rect width="480" height="360" fill="white"/>
+      <circle cx="307" cy="185" r="18" fill="black"/>
+      <circle cx="327" cy="192" r="15" fill="black"/>
+      <circle cx="291" cy="172" r="13" fill="black"/>
+    </mask>
+  </defs>
+  <ellipse cx="240" cy="324" rx="172" ry="15" fill="#F1E3D1"/>
+  <!-- Fluffy tail and its cream tip. -->
+  <path d="M205 304C125 345 54 292 76 206C83 179 107 160 119 151C105 216 163 205 191 238C209 259 214 283 205 304Z" fill="#D2773B"/>
+  <path d="M76 206C83 179 107 160 119 151C112 182 123 201 143 214L117 219L109 239L92 228L80 243C75 231 74 218 76 206Z" fill="#FFFDF9"/>
+  <!-- Seated body. -->
+  <path d="M174 211C150 245 151 295 174 319H279C299 281 286 236 267 214Z" fill="#D2773B"/>
+  <ellipse cx="225" cy="269" rx="37" ry="53" fill="#FFF1DE"/>
+  <ellipse cx="180" cy="315" rx="30" ry="12" fill="#6B3E22"/>
+  <ellipse cx="271" cy="315" rx="30" ry="12" fill="#6B3E22"/>
+  <!-- Pointed ears and face. -->
+  <path d="M151 132L143 43Q144 34 152 39L211 84L250 84L304 39Q313 34 312 46L300 139L317 162Q286 214 229 231Q174 215 138 163Z" fill="#D2773B"/>
+  <path d="M158 57L164 119L194 91Z" fill="#6B3E22"/>
+  <path d="M295 57L283 119L262 92Z" fill="#6B3E22"/>
+  <path d="M138 163Q177 149 229 196Q271 150 317 162Q284 215 229 231Q175 214 138 163Z" fill="#FFFDF9"/>
+  <path d="M172 143Q185 130 198 143M257 143Q270 130 283 143" stroke="#432A1D" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="169" cy="161" rx="12" ry="6" fill="#EDB98A"/>
+  <ellipse cx="285" cy="161" rx="12" ry="6" fill="#EDB98A"/>
+  <path d="M217 187Q229 181 241 187Q240 198 229 202Q219 197 217 187Z" fill="#432A1D"/>
+  <path d="M229 202Q242 221 259 205" stroke="#432A1D" stroke-width="4" stroke-linecap="round"/>
+  <!-- Bitten donut, held close to the mouth. -->
+  <g mask="url(#bite)">
+    <circle cx="303" cy="242" r="66" fill="#C88A4E"/>
+    <circle cx="303" cy="237" r="61" fill="#EDB98A"/>
+    <path d="M247 229C248 197 274 179 302 180C336 180 363 206 361 236C360 249 350 244 346 254C340 268 329 252 319 262C308 273 300 258 290 266C277 275 272 255 262 256C248 258 244 241 247 229Z" fill="#FFF1DE"/>
+    <ellipse cx="303" cy="224" rx="17" ry="15" fill="#C88A4E"/>
+    <ellipse cx="303" cy="226" rx="12" ry="10" fill="#FBF5EE"/>
+    <path d="M269 208L275 212M330 205L335 211M345 229L338 231M268 237L262 232M291 193L286 197" stroke="#D2773B" stroke-width="4" stroke-linecap="round"/>
+    <text x="303" y="284" text-anchor="middle" font-family="Arial, sans-serif" font-size="25" font-weight="700" fill="#2557A7">indeed</text>
+  </g>
+  <path d="M199 239Q220 226 251 246" stroke="#A4501F" stroke-width="25" stroke-linecap="round"/>
+  <ellipse cx="249" cy="246" rx="16" ry="13" fill="#6B3E22" transform="rotate(20 249 246)"/>
+  <ellipse cx="357" cy="256" rx="13" ry="18" fill="#6B3E22" transform="rotate(24 357 256)"/>
+  <circle cx="332" cy="172" r="4" fill="#C88A4E"/>
+  <circle cx="348" cy="183" r="3" fill="#C88A4E"/>
+  <path d="M362 130L368 115M377 141L392 136" stroke="#EDB98A" stroke-width="4" stroke-linecap="round"/>
+</svg>
