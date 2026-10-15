@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy import or_, select
 
 from app.api.deps import DbSession, require_admin
-from app.api.errors import commit, get_or_404
+from app.api.errors import commit, error_responses, get_or_404
 from app.api.pagination import PageQuery, paginate
 from app.models import Company
 from app.schemas import CompanyIn, CompanyOut, CompanyUpdate, Page
@@ -22,13 +22,17 @@ def list_companies(db: DbSession, params: PageQuery, q: str | None = None):
     return paginate(db, stmt.order_by(Company.name, Company.id), params)
 
 
-@router.get("/{company_id}", response_model=CompanyOut)
+@router.get("/{company_id}", response_model=CompanyOut, responses=error_responses(404))
 def get_company(company_id: int, db: DbSession):
     return get_or_404(db, Company, company_id)
 
 
 @router.post(
-    "", response_model=CompanyOut, status_code=status.HTTP_201_CREATED, dependencies=admin_only
+    "",
+    response_model=CompanyOut,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=admin_only,
+    responses=error_responses(401, 403, 409),
 )
 def create_company(data: CompanyIn, db: DbSession):
     company = Company(**data.model_dump())
@@ -38,7 +42,12 @@ def create_company(data: CompanyIn, db: DbSession):
     return company
 
 
-@router.put("/{company_id}", response_model=CompanyOut, dependencies=admin_only)
+@router.put(
+    "/{company_id}",
+    response_model=CompanyOut,
+    dependencies=admin_only,
+    responses=error_responses(401, 403, 404, 409),
+)
 def update_company(company_id: int, data: CompanyUpdate, db: DbSession):
     company = get_or_404(db, Company, company_id)
     for field, value in data.model_dump().items():
@@ -49,7 +58,10 @@ def update_company(company_id: int, data: CompanyUpdate, db: DbSession):
 
 
 @router.delete(
-    "/{company_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=admin_only
+    "/{company_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=admin_only,
+    responses=error_responses(401, 403, 404),
 )
 def delete_company(company_id: int, db: DbSession):
     """Also deletes the company's advertisements (and their applications)."""

@@ -18,7 +18,6 @@ Contrat d'API : `backend/README.md`.
 - [x] Inscription, connexion (JWT), lecture et modification du compte
 - [x] Mots de passe bcrypt, contrôle des rôles côté serveur
 - [x] Pagination `{items, total, page, limit}`, erreurs 401/403/404/409/422
-- [x] Limitation de débit (login, candidature)
 - [x] Notification email optionnelle (SMTP)
 - [x] Tests pytest
 

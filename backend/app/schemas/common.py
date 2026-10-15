@@ -13,11 +13,15 @@ def _max_72_bytes(password: str) -> str:
 
 
 Password = Annotated[
-    str, Field(min_length=8, max_length=72), AfterValidator(_max_72_bytes)
+    str,
+    Field(min_length=8, max_length=72, examples=["Motdepasse123"]),
+    AfterValidator(_max_72_bytes),
 ]
-Phone = Annotated[str, Field(min_length=3, max_length=20)]
+Phone = Annotated[str, Field(min_length=3, max_length=20, examples=["0612345678"])]
 # no "@": login accepts a user name or an email, the two must never collide
-UserName = Annotated[str, Field(min_length=3, max_length=50, pattern=r"^[^@]+$")]
+UserName = Annotated[
+    str, Field(min_length=3, max_length=50, pattern=r"^[^@]+$", examples=["jdupont"])
+]
 # MySQL TEXT holds 65 535 bytes (up to 4 bytes per character): stay well below
 LongText = Annotated[str, Field(max_length=10_000)]
 # primary / foreign keys are INT in MySQL

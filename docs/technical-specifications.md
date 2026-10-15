@@ -18,7 +18,6 @@ Le projet tourne entièrement en local.
 - **Pydantic / pydantic-settings** : validation des données et configuration via `.env`
 - **Authentification** : JWT Bearer (PyJWT, HS256, 60 min par défaut), mots de passe **bcrypt**
 - **Rôles** : `user`, `recruiter`, `admin` ; contrôle des droits côté serveur
-- **Limitation de débit** : fenêtre glissante en mémoire, par IP (login, candidature)
 - **Email** : notification SMTP optionnelle au propriétaire de l'annonce, en tâche de fond
 
 ### Outils de développement

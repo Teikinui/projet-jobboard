@@ -46,9 +46,6 @@ cp .env.example .env
 | `SECRET_KEY`                      | oui         | Clé de signature des JWT, 32 caractères minimum ; la valeur de `.env.example` est refusée   |
 | `ACCESS_TOKEN_EXPIRE_MINUTES`     | non         | Durée de vie du jeton, défaut `60`                                                          |
 | `CORS_ORIGINS`                    | non         | Origines du front séparées par des virgules, défaut : Vite sur le port 5173                 |
-| `RATE_LIMIT_ENABLED`              | non         | Défaut `true`                                                                               |
-| `RATE_LIMIT_LOGIN`                | non         | Tentatives de connexion par IP client, défaut `10/minute`                                   |
-| `RATE_LIMIT_APPLY`                | non         | Candidatures par IP client, défaut `20/hour`                                                |
 | `SMTP_HOST`                       | non         | Active l'email envoyé au propriétaire de l'annonce à chaque candidature                     |
 | `SMTP_PORT`                       | non         | Défaut `587`                                                                                |
 | `SMTP_USERNAME` / `SMTP_PASSWORD` | non         | Identifiants SMTP                                                                           |
@@ -86,14 +83,13 @@ Les tests tournent sur la base configurée dans `.env` (seedée avec `sql/seed.s
 |    |--- seed.sql # données de démonstration
 |--- app/
 |    |--- main.py # application FastAPI, CORS, /health
-|    |--- core/ # config.py (réglages du .env), database.py (moteur, session), security.py (bcrypt, JWT), rate_limit.py (fenêtre glissante)
+|    |--- core/ # config.py (réglages du .env), database.py (moteur, session), security.py (bcrypt, JWT)
 |    |--- models/ # modèles SQLAlchemy, un fichier par table (miroir de sql/schemas.sql)
 |    |--- schemas/ # modèles Pydantic de requête / réponse, un fichier par ressource (+ common, auth)
 |    |--- api/
 |    |    |--- router.py #  monte toutes les routes sous /api
 |    |    |--- deps.py #  dépendances : session BDD, utilisateur courant, contrôle admin
 |    |    |--- pagination.py #  paramètres page / limit et paginate()
-|    |    |--- rate_limit.py #  dépendances de limitation de débit par IP (connexion, candidature)
 |    |    |--- errors.py #  get_or_404 et erreurs d'intégrité MySQL converties en erreurs HTTP
 |    |    |--- routes/ #  auth, companies, advertisements, users, applications
 |    |--- services/
@@ -131,18 +127,13 @@ Toutes les routes sont préfixées par `/api`. Les routes authentifiées attende
 - **Mise à jour** : `PUT` remplace toute la ressource : chaque champ doit être envoyé, les facultatifs en
   `null` (omettre un champ donne un `422`, rien n'est réinitialisé en silence). Seule exception : `password`
   sur `PUT /users/{id}`, inchangé s'il est omis.
-- **Limitation de débit** : `POST /api/auth/login` et `POST /api/advertisements/{id}/applications` sont
-  limitées par IP client (`RATE_LIMIT_LOGIN`, `RATE_LIMIT_APPLY`) ; chaque tentative compte, réussie ou non.
-  Au-delà de la limite, l'API répond `429` avec un en-tête `Retry-After` (en secondes). Les compteurs sont
-  en mémoire du processus : avec plusieurs workers, chacun compte de son côté. Derrière un reverse proxy,
-  lancer uvicorn avec `--forwarded-allow-ips=<ip du proxy>` pour utiliser l'IP réelle du client et non
-  celle du proxy.
 - **Jetons** : un jeton invalide ou expiré est traité comme « non connecté » : les routes publiques
   fonctionnent toujours, les routes protégées répondent `401`.
 - **Suppression** : `204 No Content`.
-- **Erreurs** : `401` non authentifié, `403` pas admin, `404` introuvable, `429` trop de requêtes, `409`
-  valeur en double ou enregistrement encore référencé, `422` corps invalide (trop long, hors limites, champ
-  manquant) ou référence à un enregistrement inexistant.
+- **Erreurs** : `400` action refusée (retirer son propre rôle admin, supprimer son propre compte, mot de
+  passe actuel incorrect), `401` non authentifié, `403` pas admin, `404` introuvable, `409` valeur en
+  double ou enregistrement encore référencé, `422` corps invalide (trop long, hors limites, champ manquant)
+  ou référence à un enregistrement inexistant.
 
 ### Authentification
 

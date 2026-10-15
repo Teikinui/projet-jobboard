@@ -6,18 +6,8 @@ Every test cleans up the records it creates.
 import uuid
 
 import pytest
-from app.api.rate_limit import limiter
-from app.core.config import settings
 from app.main import app
 from fastapi.testclient import TestClient
-
-
-@pytest.fixture(autouse=True)
-def _no_rate_limit(monkeypatch):
-    """Tests log in and apply many times from one IP: limits are off by default
-    (tests/test_rate_limit.py turns them on explicitly)."""
-    monkeypatch.setattr(settings, "rate_limit_enabled", False)
-    limiter.clear()
 
 
 @pytest.fixture(scope="session")

@@ -75,7 +75,6 @@ Toutes les routes sont sous `/api`. Détail complet : [`backend/README.md`](back
 - **Candidature** : `POST /advertisements/{id}/applications`, anonyme ou connecté.
   Un utilisateur connecté postule toujours avec l'email de son compte ; un visiteur
   ne peut pas utiliser l'email d'un compte existant. Une candidature par email et par annonce.
-- **Limitation de débit** : login et candidature, par IP (`429` + `Retry-After`).
 - **Email** : notification au propriétaire de l'annonce si `SMTP_HOST` est configuré.
 
 ## Modèle SQL

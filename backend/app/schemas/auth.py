@@ -9,9 +9,9 @@ class RegisterIn(BaseModel):
     """Public sign-up: always creates a plain `user` account."""
 
     user_name: UserName
-    first_name: Annotated[str, Field(min_length=1, max_length=100)]
-    last_name: Annotated[str, Field(min_length=1, max_length=100)]
-    email: EmailStr
+    first_name: Annotated[str, Field(min_length=1, max_length=100, examples=["Jean"])]
+    last_name: Annotated[str, Field(min_length=1, max_length=100, examples=["Dupont"])]
+    email: Annotated[EmailStr, Field(examples=["jean.dupont@example.com"])]
     phone: Phone
     password: Password
 
@@ -26,7 +26,9 @@ class ProfileUpdate(BaseModel):
     phone: Phone
     new_password: Password | None = None
     current_password: str | None = Field(
-        default=None, description="Required when `new_password` is set"
+        default=None,
+        description="Required when `new_password` is set",
+        examples=["MotDePasse123"],
     )
 
 
