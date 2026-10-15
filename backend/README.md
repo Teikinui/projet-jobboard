@@ -125,15 +125,17 @@ Toutes les routes sont préfixées par `/api`. Les routes authentifiées attende
 - **Pagination** : les routes de liste acceptent `page` (défaut `1`) et `limit` (défaut `20`, max `100`) et
   renvoient `{ "items": [...], "total": 42, "page": 1, "limit": 20 }`.
 - **Mise à jour** : `PUT` remplace toute la ressource : chaque champ doit être envoyé, les facultatifs en
-  `null` (omettre un champ donne un `422`, rien n'est réinitialisé en silence). Seule exception : `password`
-  sur `PUT /users/{id}`, inchangé s'il est omis.
+  `null` (omettre un champ donne un `422`, rien n'est réinitialisé en silence). Seule exception : le mot de
+  passe, inchangé s'il est omis (`password` sur `PUT /users/{id}`, `new_password` sur `PUT /auth/me`, qui
+  exige alors `current_password`).
 - **Jetons** : un jeton invalide ou expiré est traité comme « non connecté » : les routes publiques
   fonctionnent toujours, les routes protégées répondent `401`.
 - **Suppression** : `204 No Content`.
 - **Erreurs** : `400` action refusée (retirer son propre rôle admin, supprimer son propre compte, mot de
   passe actuel incorrect), `401` non authentifié, `403` pas admin, `404` introuvable, `409` valeur en
   double ou enregistrement encore référencé, `422` corps invalide (trop long, hors limites, champ manquant)
-  ou référence à un enregistrement inexistant.
+  ou référence à un enregistrement inexistant. Le corps est `{ "detail": "message" }`, sauf pour un `422` de
+  validation où `detail` est une liste (`loc`, `msg`, `type`). Swagger documente les codes de chaque route.
 
 ### Authentification
 
