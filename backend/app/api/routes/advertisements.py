@@ -5,9 +5,8 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import joinedload
 
 from app.api.deps import AdminUser, DbSession, OptionalUser, require_admin
-from app.api.errors import commit, get_or_404
+from app.api.errors import commit, error_responses, get_or_404
 from app.api.pagination import PageQuery, paginate
-from app.api.rate_limit import apply_rate_limit
 from app.models import Advertisement, JobApplication, User
 from app.schemas import (
     AdvertisementIn,
@@ -67,7 +66,9 @@ def list_advertisements(
     return paginate(db, stmt, params, joinedload(Advertisement.company))
 
 
-@router.get("/{advertisement_id}", response_model=AdvertisementOut)
+@router.get(
+    "/{advertisement_id}", response_model=AdvertisementOut, responses=error_responses(404)
+)
 def get_advertisement(advertisement_id: int, db: DbSession, user: OptionalUser):
     ad = get_or_404(db, Advertisement, advertisement_id)
     if not ad.is_active and not _is_admin(user):
@@ -76,7 +77,10 @@ def get_advertisement(advertisement_id: int, db: DbSession, user: OptionalUser):
 
 
 @router.post(
-    "", response_model=AdvertisementOut, status_code=status.HTTP_201_CREATED
+    "",
+    response_model=AdvertisementOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(401, 403),
 )
 def create_advertisement(data: AdvertisementIn, db: DbSession, admin: AdminUser):
     values = data.model_dump()
@@ -90,7 +94,10 @@ def create_advertisement(data: AdvertisementIn, db: DbSession, admin: AdminUser)
 
 
 @router.put(
-    "/{advertisement_id}", response_model=AdvertisementOut, dependencies=admin_only
+    "/{advertisement_id}",
+    response_model=AdvertisementOut,
+    dependencies=admin_only,
+    responses=error_responses(401, 403, 404),
 )
 def update_advertisement(
     advertisement_id: int, data: AdvertisementUpdate, db: DbSession
@@ -107,6 +114,7 @@ def update_advertisement(
     "/{advertisement_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=admin_only,
+    responses=error_responses(401, 403, 404),
 )
 def delete_advertisement(advertisement_id: int, db: DbSession):
     """Also deletes the applications made to this advertisement."""
@@ -118,8 +126,7 @@ def delete_advertisement(advertisement_id: int, db: DbSession):
     "/{advertisement_id}/applications",
     response_model=ApplicationReceipt,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(apply_rate_limit)],
-    responses={429: {"description": "Too many applications from this IP"}},
+    responses=error_responses(404, 409),
 )
 def apply_to_advertisement(
     advertisement_id: int,

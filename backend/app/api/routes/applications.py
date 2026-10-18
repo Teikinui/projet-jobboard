@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import or_, select
 
 from app.api.deps import DbSession, require_admin
-from app.api.errors import commit, get_or_404
+from app.api.errors import commit, error_responses, get_or_404
 from app.api.pagination import PageQuery, paginate
 from app.models import JobApplication
 from app.schemas import (
@@ -16,7 +16,10 @@ from app.schemas import (
 )
 
 router = APIRouter(
-    prefix="/applications", tags=["applications"], dependencies=[Depends(require_admin)]
+    prefix="/applications",
+    tags=["applications"],
+    dependencies=[Depends(require_admin)],
+    responses=error_responses(401, 403),
 )
 
 
@@ -48,12 +51,19 @@ def list_applications(
     return paginate(db, stmt, params)
 
 
-@router.get("/{application_id}", response_model=ApplicationOut)
+@router.get(
+    "/{application_id}", response_model=ApplicationOut, responses=error_responses(404)
+)
 def get_application(application_id: int, db: DbSession):
     return get_or_404(db, JobApplication, application_id)
 
 
-@router.post("", response_model=ApplicationOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ApplicationOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(409),
+)
 def create_application(data: ApplicationIn, db: DbSession):
     application = JobApplication(**data.model_dump())
     db.add(application)
@@ -62,7 +72,9 @@ def create_application(data: ApplicationIn, db: DbSession):
     return application
 
 
-@router.put("/{application_id}", response_model=ApplicationOut)
+@router.put(
+    "/{application_id}", response_model=ApplicationOut, responses=error_responses(404, 409)
+)
 def update_application(
     application_id: int, data: ApplicationUpdate, db: DbSession
 ):
@@ -74,7 +86,11 @@ def update_application(
     return application
 
 
-@router.delete("/{application_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{application_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_responses(404),
+)
 def delete_application(application_id: int, db: DbSession):
     db.delete(get_or_404(db, JobApplication, application_id))
     commit(db)

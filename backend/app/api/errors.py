@@ -1,6 +1,9 @@
 """Lookups and database errors mapped to HTTP errors."""
 
+from typing import Any
+
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.exc import DataError, IntegrityError
 from sqlalchemy.orm import Session
 
@@ -8,6 +11,24 @@ from sqlalchemy.orm import Session
 _DUPLICATE_ENTRY = 1062  # duplicate entry on a UNIQUE column
 _FK_CHILD_FAILS = 1452  # inserting / updating a reference to a missing row
 _FK_PARENT_FAILS = 1451  # deleting a row that is still referenced
+
+
+class ErrorOut(BaseModel):
+    detail: str
+
+
+_DESCRIPTIONS = {
+    400: "Bad request",
+    401: "Not authenticated or invalid credentials",
+    403: "Admin access required",
+    404: "Not found",
+    409: "Conflict with an existing record",
+}
+
+
+def error_responses(*codes: int) -> dict[int | str, dict[str, Any]]:
+    """OpenAPI docs for HTTPExceptions raised by a route (FastAPI only documents 422)."""
+    return {code: {"model": ErrorOut, "description": _DESCRIPTIONS[code]} for code in codes}
 
 
 def get_or_404[M](db: Session, model: type[M], object_id: int) -> M:

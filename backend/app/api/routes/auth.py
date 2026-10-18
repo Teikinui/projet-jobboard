@@ -5,8 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import or_, select
 
 from app.api.deps import CurrentUser, DbSession
-from app.api.errors import commit
-from app.api.rate_limit import login_rate_limit
+from app.api.errors import commit, error_responses
 from app.core.security import (
     DUMMY_HASH,
     create_access_token,
@@ -19,7 +18,12 @@ from app.schemas import ProfileUpdate, RegisterIn, TokenOut, UserOut
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(409),
+)
 def register(data: RegisterIn, db: DbSession):
     """Create a plain `user` account (roles are only granted by an admin)."""
     user = User(
@@ -33,12 +37,7 @@ def register(data: RegisterIn, db: DbSession):
     return user
 
 
-@router.post(
-    "/login",
-    response_model=TokenOut,
-    dependencies=[Depends(login_rate_limit)],
-    responses={429: {"description": "Too many login attempts from this IP"}},
-)
+@router.post("/login", response_model=TokenOut, responses=error_responses(401))
 def login(
     form: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: DbSession,
@@ -63,12 +62,12 @@ def login(
     )
 
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=UserOut, responses=error_responses(401))
 def read_me(user: CurrentUser):
     return user
 
 
-@router.put("/me", response_model=UserOut)
+@router.put("/me", response_model=UserOut, responses=error_responses(400, 401, 409))
 def update_me(data: ProfileUpdate, user: CurrentUser, db: DbSession):
     """Update the authenticated user's profile and, optionally, password."""
     if data.new_password:

@@ -2,14 +2,17 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_, select
 
 from app.api.deps import AdminUser, DbSession, require_admin
-from app.api.errors import commit, get_or_404
+from app.api.errors import commit, error_responses, get_or_404
 from app.api.pagination import PageQuery, paginate
 from app.core.security import hash_password
 from app.models import User
 from app.schemas import Page, UserCreate, UserOut, UserRole, UserUpdate
 
 router = APIRouter(
-    prefix="/users", tags=["users"], dependencies=[Depends(require_admin)]
+    prefix="/users",
+    tags=["users"],
+    dependencies=[Depends(require_admin)],
+    responses=error_responses(401, 403),
 )
 
 
@@ -39,12 +42,17 @@ def list_users(
     return paginate(db, stmt.order_by(User.id), params)
 
 
-@router.get("/{user_id}", response_model=UserOut)
+@router.get("/{user_id}", response_model=UserOut, responses=error_responses(404))
 def get_user(user_id: int, db: DbSession):
     return get_or_404(db, User, user_id)
 
 
-@router.post("", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=UserOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=error_responses(409),
+)
 def create_user(data: UserCreate, db: DbSession):
     values = data.model_dump(exclude={"password"})
     user = User(**values, hashed_password=hash_password(data.password))
@@ -54,7 +62,9 @@ def create_user(data: UserCreate, db: DbSession):
     return user
 
 
-@router.put("/{user_id}", response_model=UserOut)
+@router.put(
+    "/{user_id}", response_model=UserOut, responses=error_responses(400, 404, 409)
+)
 def update_user(user_id: int, data: UserUpdate, db: DbSession, admin: AdminUser):
     user = get_or_404(db, User, user_id)
     if user.id == admin.id and data.role != "admin":
@@ -70,7 +80,11 @@ def update_user(user_id: int, data: UserUpdate, db: DbSession, admin: AdminUser)
     return user
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses=error_responses(400, 404),
+)
 def delete_user(user_id: int, db: DbSession, admin: AdminUser):
     if user_id == admin.id:
         raise HTTPException(
