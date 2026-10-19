@@ -91,6 +91,8 @@ dl { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)); gap: 1
 dt { color: var(--cocoa); font-weight: 700; } dd { margin: 4px 0 0; }
 .actions, .pagination { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 20px 0; }
 .pagination { justify-content: center; color: var(--cocoa); }
+.board-mascot { display: flex; justify-content: center; margin: 32px 0 0; }
+.board-mascot img { display: block; width: min(100%, 400px); height: auto; }
 
 .auth-layout { display: grid; grid-template-columns: .95fr 1.05fr; gap: 28px; align-items: stretch; min-height: calc(100vh - 130px); }
 .auth-panel, .auth-card, .admin-form, .confirmation, .table-scroll { background: var(--linen); border: 1px solid rgba(107, 62, 34, 0.12); border-radius: 22px; box-shadow: var(--soft-shadow); }
