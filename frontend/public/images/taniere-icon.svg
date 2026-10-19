@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" role="img" aria-label="Tanière">
+  <!-- Outer arch: rust -->
+  <path d="M4 38V20a16 16 0 0 1 32 0v18z" fill="#A4501F"/>
+  <!-- Middle arch: apricot -->
+  <path d="M11 38V22a9 9 0 0 1 18 0v16z" fill="#EDB98A"/>
+  <!-- Doorway: cream -->
+  <path d="M16.5 38V25a3.5 3.5 0 0 1 7 0v13z" fill="#FBF5EE"/>
+</svg>

@@ -22,15 +22,11 @@
 }
 
 .logoMark {
-    display: inline-grid;
+    display: block;
     width: 34px;
     height: 34px;
-    place-items: center;
-    border-radius: 50% 50% 45% 45%;
-    background: var(--rust);
-    color: var(--linen);
-    font-family: var(--font-title);
-    font-weight: 700;
+    flex-shrink: 0;
+    object-fit: contain;
 }
 
 .nav {

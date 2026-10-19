@@ -7,6 +7,29 @@ Le backend est la source de vérité du contrat d'API : sa documentation détail
 (routes, schéma, configuration) est dans [`backend/README.md`](backend/README.md)
 et dans Swagger (<http://127.0.0.1:8000/docs>).
 
+## Démarrage avec une base Docker
+
+Avec Docker Compose, Python et Node installés :
+
+```bash
+./scripts/start-local.sh
+```
+
+Le script génère les fichiers `.env` locaux (secrets aléatoires, non versionnés),
+démarre MySQL sur **3307** et attend que la base soit prête. Au premier démarrage,
+le schéma et les données de `backend/sql/seed.sql` sont importés automatiquement :
+3 entreprises, 3 utilisateurs, 5 annonces et 2 candidatures.
+Il affiche ensuite les commandes pour lancer le backend sur **8001** et le frontend
+sur **5173**. Les configurations existantes ne sont jamais écrasées.
+
+Les données persistent entre les redémarrages. Pour arrêter MySQL sans les effacer :
+`docker compose stop db`. Ne supprimez pas le volume pour un simple redémarrage.
+Gardez le fichier `.env` : changer son mot de passe ne change pas celui d'une base
+qui a déjà été initialisée.
+
+Si Docker affiche « permission denied », autorisez votre utilisateur à accéder à
+Docker (ou demandez à l'administrateur de le faire), puis relancez le script.
+
 ## Lancer en local
 
 Prérequis : **Python 3.12+**, **Node.js 22.12+**, **MySQL 8** en local.

@@ -13,7 +13,7 @@ export default function Header() {
 
   return <header className={style.header}>
     <Link to="/" className={style.brand} aria-label="tanière, retour aux offres">
-      <span className={style.logoMark}>t</span>
+      <img className={style.logoMark} src="/images/taniere-icon.svg" alt="" width="34" height="34" />
       tanière
     </Link>
     <nav className={style.nav} aria-label="Navigation principale">
